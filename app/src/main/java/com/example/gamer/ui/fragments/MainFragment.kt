@@ -17,16 +17,18 @@ import com.example.gamer.core.network.models.Params
 import com.example.gamer.databinding.FragmentMainBinding
 import com.example.gamer.ui.adapter.GameListAdapter
 import com.example.gamer.ui.adapter.OnItemClick
+import com.example.gamer.ui.adapter.OnReachEndListener
 import com.example.gamer.ui.presenters.GameListPresenter
 import com.example.gamer.ui.presenters.GameListView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.text.FieldPosition
 
 
-class MainFragment : Fragment(), GameListView, OnItemClick {
+class MainFragment : Fragment(), GameListView, OnItemClick, OnReachEndListener {
 
-    private val adapter = GameListAdapter(this)
+    private val adapter = GameListAdapter(this, this)
     private lateinit var presenter: GameListPresenter
 
     override fun onCreateView(
@@ -56,6 +58,7 @@ class MainFragment : Fragment(), GameListView, OnItemClick {
 
     override fun showData(games: List<Game>) {
         adapter.items = games
+        adapter.notifyDataSetChanged()
     }
 
     override fun showError(throwable: Throwable) {
@@ -65,5 +68,9 @@ class MainFragment : Fragment(), GameListView, OnItemClick {
 
     override fun onClick(position: Int) {
         Toast.makeText(requireContext(), position.toString(), Toast.LENGTH_LONG).show()
+    }
+
+    override fun onReachEnd(adapterPosition: Int) {
+        presenter.readyToLoadMore(adapterPosition)
     }
 }
